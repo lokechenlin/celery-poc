@@ -1,0 +1,29 @@
+{
+    "sample": {
+        "error_handler": "instant_retry|wait_queue|wait_worker - Used by Task worker",         
+        "log_handler": "none|simple|complete - Used by Task worker",
+        "end_point": "<http end point> - Used by Task worker",                            
+        "max_messages": "0|<integer> - Max messages to proceed before end. 0 Means until queue is empty, then based on max-idle-seconds",
+        "max_idle_seconds": "0|<integer> - Max idle seconds before script terminate. 0 Means immediate, -1 means dont terminate",
+        "task_handler": "http_end_point - to be decided",
+        "vhost": ""
+    },
+
+    "general_queue": {
+        "error_handling": "instant_retry",   
+        "log_handler": "none",  
+        "end_point": "",
+        "max_messages": 0,
+        "max_idle_seconds": -1,
+        "vhost": "unittest2"
+    },
+
+    "group*": {
+        "error_handling": "wait_worker",   
+        "log_handler": "simple",  
+        "end_point": "",
+        "max_messages": 0,
+        "max_idle_seconds": 0,
+        "vhost": "unittest2"
+    }    
+}
