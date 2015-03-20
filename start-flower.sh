@@ -1,1 +1,1 @@
-celery flower --broker=amqp://jsapi:q6tRadat@localhost:5672// --port=5555
+celery flower --broker=amqp://jsapi:xxxxxx@localhost:5672/unittest2 --port=5555
