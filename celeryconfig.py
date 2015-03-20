@@ -1,19 +1,24 @@
-# Celery Settings
+### Celery Settings
 BROKER_URL = 'amqp://jsapi:q6tRadat@localhost/unittest2'
 CELERY_RESULT_BACKEND = 'amqp://jsapi:q6tRadat@localhost/unittest2'
 
+# Define input and output format
+CELERY_ACCEPT_CONTENT=['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TASK_RESULT_EXPIRES = 30
-CELERY_ACCEPT_CONTENT=['json']
 
+# Define Result Expires
+CELERY_TASK_RESULT_EXPIRES = 30
+
+# Define Timezone
 CELERY_TIMEZONE = 'Asia/Kuala_Lumpur'
 CELERY_ENABLE_UTC = True
 
+# Define concurrency level
 CELERYD_CONCURRENCY = 4
 
+### Celery Scheduler Settings
 from datetime import timedelta
-
 CELERYBEAT_SCHEDULE = {
     'add-every-30-seconds': {
         'task': 'daemon.tasks.worker_daemon',
@@ -22,11 +27,9 @@ CELERYBEAT_SCHEDULE = {
     },
 }
 
-# Queue Settings
-#QUEUES = ['general_queue', 'group*']
-QUEUES = ['group*']
+### Queue Settings, To be moved to json configuration under ./config/xxx
+QUEUES = ['general_queue', 'group*']
 
-
-# Django Settings
+### Django Settings
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
