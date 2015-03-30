@@ -46,7 +46,7 @@ cd ../celery-poc<br>
 celery flower --broker=amqp://jsapi:xxxxxx@locaost:5672/unittest2 --port=5555<br>
 
 ## Start Worker
-celery worker -A daemon -l info <br>
+celery worker -A daemon -l info --concurrency=5 --purge --autoscale=10,5<br>
 
 ## Start Scheduler
 celery -A daemon beat<br>

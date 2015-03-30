@@ -65,8 +65,10 @@ DATABASES = {
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': 'tick.jobstreet.com:11211',
+        #'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        #'LOCATION': 'tick.jobstreet.com:11211',
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': '/var/tmp/django_cache',
     }
 }
 

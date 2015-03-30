@@ -10,20 +10,6 @@ import requests
 import time
 import json   
 
-
-@app.task
-def abc():
-    x = cde.delay() 
-    print("start") 
-    print(x) 
-    print(x.task_id)
-    print("end") 
-    return True
-
-@app.task
-def cde():
-    return True
-
 # celery call daemon.tasks.worker_daemon
 @app.task
 def worker_daemon():
@@ -31,6 +17,7 @@ def worker_daemon():
     
     # http://celery.readthedocs.org/en/latest/tutorials/task-cookbook.html#cookbook-task-serial
     # http://loose-bits.com/2010/10/distributed-task-locking-in-celery.html
+    # https://docs.djangoproject.com/en/1.7/topics/cache/
 
     # First of all, make sure it run once
     LOCK_EXPIRE = 60 * 5 # Lock expires in 5 minutes
@@ -196,10 +183,9 @@ def do_task(queue_name, queue_config):
     # http://kombu.readthedocs.org/en/latest/userguide/examples.html
     with Connection('amqp://jsapi:q6tRadat@localhost:5672/unittest2') as conn:
         
-        # Open Channel
-        simple_queue = conn.SimpleQueue(queue_name)  
-
         while True:
+            # Open Channel
+            simple_queue = conn.SimpleQueue(queue_name)  
 
             # Retrieve Message                          
             try:
@@ -210,7 +196,10 @@ def do_task(queue_name, queue_config):
 
             if message == '' or message == None:               
                 if max_idle_seconds == 0:
+                    time.sleep(2)
                     print("No more message ... end")  
+                    lock_id = 'do_task_' + queue_name
+                    cache.delete(lock_id)
                     return True
                 else:
                     print("No more message ... sleep 5")       
@@ -235,51 +224,43 @@ def do_task(queue_name, queue_config):
 
                 if reply_to != '' and reply_to != None:
                     publisher = conn.SimpleQueue(message.properties['reply_to'])
-                    publisher.put(data)
+                    publisher.put(message.payload)
                     publisher.close()        
                    
                 # Ack Message
                 message.ack() 
 
-            print ("Next message ... ")                
-
-        # Close Channel
-        simple_queue.close()
+            print ("Next message ... ")   
+            
+            # Close Channel
+            simple_queue.close()
 
     print ('END. Task is done!')
     return True
 
-# celery call daemon.tasks.do_task --args='["general_queue",{"max_idle_seconds": 0}]' 
+
 @app.task
-def sample_task(queue_name, queue_config):    
+def do_async(headers, properties, payload, url, method):
+                   
+    # Call API
+    api = url
+    print("Fire to RESTful API: %s" % api)                
+    response = requests.get(api)
+    data = response.json()
+    print ("RESTful API Response: %s" % data)
+              
+    # Reply to
+    try:
+        reply_to = properties['reply_to']
+    except IndexError:
+        reply_to = None
 
-    with Connection('amqp://jsapi:q6tRadat@localhost:5672/unittest2') as conn:
-        
-        # Open Channel
-        simple_queue = conn.SimpleQueue(queue_name)  
+    if reply_to != '' and reply_to != None:
+        with Connection('amqp://jsapi:q6tRadat@localhost:5672/unittest2') as conn:
+            publisher = conn.SimpleQueue(reply_to)
+            publisher.put(data)
+            publisher.close()   
 
-        while True:
-            # Retrieve Message                          
-            message = simple_queue.get(block=True, timeout=1)
-           
-            if message == '' or message == None:               
-                print("No more message ... end")  
-                return True
-                
-            else:
-                print("Message received: %s" % message.payload)
-                        
-                # Call API
-                api = 'http://tick.jobstreet.com/~chenlin/celery-test-api.php'                           
-                response = requests.get(api)
-                data = response.json()                
-   
-                # Ack Message
-                message.ack() 
-
-            print ("Next message ... ")                
-
-        # Close Channel
-        simple_queue.close()
-
+    print ('END. Task is done!')
     return True
+    
