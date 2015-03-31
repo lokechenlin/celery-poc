@@ -68,7 +68,7 @@ def general_worker(queue_name, queue_config):
     # A general worker call task by managing the concurrency 
 
     # First of all, make sure it run once
-    LOCK_EXPIRE = 60 * 5 # Lock expires in 5 minutes
+    LOCK_EXPIRE = 60 # Lock expires in 1 minutes
     lock_id = 'general_worker_' + queue_name
     acquire_lock = lambda: cache.add(lock_id, 'true', LOCK_EXPIRE)
     release_lock = lambda: cache.delete(lock_id)
@@ -104,7 +104,7 @@ def group_worker(queue_name_prefix, queue_config):
     # A group worker call queue API and call task.
 
     # First of all, make sure it run once
-    LOCK_EXPIRE = 60 * 5 # Lock expires in 5 minutes
+    LOCK_EXPIRE = 60 # Lock expires in 5 minutes
     lock_id = 'group_worker_' + queue_name_prefix
     acquire_lock = lambda: cache.add(lock_id, 'true', LOCK_EXPIRE)
     release_lock = lambda: cache.delete(lock_id)
@@ -196,14 +196,14 @@ def do_task(queue_name, queue_config):
 
             if message == '' or message == None:               
                 if max_idle_seconds == 0:
-                    time.sleep(2)
+                    time.sleep(1)
                     print("No more message ... end")  
                     lock_id = 'do_task_' + queue_name
                     cache.delete(lock_id)
                     return True
                 else:
                     print("No more message ... sleep 5")       
-                    time.sleep(5)
+                    time.sleep(10)
             else:
                 print("Message received: %s" % message.payload)
                 print("Message properties: %s" % message.properties)    

@@ -16,7 +16,9 @@ CELERY_TIMEZONE = 'Asia/Kuala_Lumpur'
 CELERY_ENABLE_UTC = True
 
 # Define concurrency level
-CELERYD_CONCURRENCY = 4
+CELERYD_CONCURRENCY = 10
+
+CELERY_ACKS_LATE = True
 
 ### Celery Scheduler Settings
 from datetime import timedelta
@@ -29,7 +31,8 @@ CELERYBEAT_SCHEDULE = {
 }
 
 ### Queue Settings, To be moved to json configuration under ./config/xxx
-QUEUES = ['general_queue', 'group*']
+#QUEUES = ['general_queue', 'group*']
+QUEUES = ['group*']
 
 ### Django Settings
 import os
